@@ -1,18 +1,17 @@
 import './App.css';
-import { useGet } from './hooks/useFetch/useFetch';
+import { List } from './components/List';
+import { Loading } from './components/Loading';
+import { useFetch } from './hooks/useFetch/useFetch';
 
 function App() {
-  const url = 'https://norma.nomoreparties.space/api/ingredients';
-  const url2 = 'https://dummyjson.com/products';
-  const { data, error, isLoading } = useGet(url);
-  console.log({ data, error, isLoading });
+  const { data, error, isLoading } = useFetch({ endpoint: 'ingredients' });
 
   return (
     <div className="App">
       <header>
         <h1>Context + useRducer + custom Hooks</h1>
       </header>
-      <main></main>
+      <main>{isLoading ? <Loading /> : <List items={data.data} />}</main>
     </div>
   );
 }

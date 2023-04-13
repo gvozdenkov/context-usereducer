@@ -1,8 +1,9 @@
 import { useEffect, useReducer } from 'react';
+import { serverConfig } from '../../utils/config';
 import { requestFailed, requestStarted, requestSuccessful } from './actions';
 import { reducer } from './reducer';
 
-export const useGet = ({ url }) => {
+export const useFetch = ({ endpoint, options = {} }) => {
   const [state, dispatch] = useReducer(reducer, {
     isLoading: true,
     data: null,
@@ -10,26 +11,36 @@ export const useGet = ({ url }) => {
   });
 
   useEffect(() => {
+    const abortController = new AbortController();
+    dispatch(requestStarted());
+
     const fetchData = async () => {
-      dispatch(requestStarted());
-
       try {
-        const response = await fetch(url);
+        const url = `${serverConfig.baseUrl}/${endpoint}`;
+        const res = await fetch(url, {
+          headers: serverConfig.headers,
+          ...options,
+          signal: abortController.signal,
+        });
 
-        if (!response.ok) {
-          throw new Error(`${response.status} ${response.statusText}`);
+        if (!res.ok) {
+          throw new Error(`Request Error ${res.status} ${res.statusText}`);
         }
 
-        const json = await response.json();
+        const data = await res.json();
 
-        dispatch(requestSuccessful({ data: await response.json() }));
+        dispatch(requestSuccessful({ data }));
       } catch (e) {
-        dispatch(requestFailed({ error: e.message }));
+        if (!abortController.signal.aborted) {
+          dispatch(requestFailed({ error: e.message }));
+        }
       }
     };
 
     fetchData();
-  }, [url]);
+
+    return () => abortController.abort();
+  }, []);
 
   return state;
 };
