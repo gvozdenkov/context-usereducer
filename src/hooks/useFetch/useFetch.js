@@ -1,13 +1,17 @@
+import { useState } from 'react';
 import { useEffect, useReducer } from 'react';
 import { serverConfig } from '../../utils/config';
 import { requestFailed, requestStarted, requestSuccessful } from './actions';
 import { reducer } from './reducer';
 
 export const useFetch = ({ endpoint, options = {} }) => {
+  const [endPoint, setEndPoint] = useState(endpoint);
+  
   const [state, dispatch] = useReducer(reducer, {
     isLoading: true,
     data: null,
     error: null,
+    setEndPoint,
   });
 
   useEffect(() => {
@@ -16,10 +20,10 @@ export const useFetch = ({ endpoint, options = {} }) => {
 
     const fetchData = async () => {
       try {
-        const url = `${serverConfig.baseUrl}/${endpoint}`;
+        const url = `https://jsonplaceholder.typicode.com/${endPoint}`;
         const res = await fetch(url, {
-          headers: serverConfig.headers,
-          ...options,
+          // headers: serverConfig.headers,
+          // ...options,
           signal: abortController.signal,
         });
 
@@ -40,7 +44,7 @@ export const useFetch = ({ endpoint, options = {} }) => {
     fetchData();
 
     return () => abortController.abort();
-  }, []);
+  }, [endPoint]);
 
   return state;
 };
