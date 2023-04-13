@@ -18,5 +18,6 @@ export const IngredientContextProvider = ({ children }) => {
   const ingredients = data ? data.data : null;
   console.log(ingredients);
 
-  return <IngredientContext.Provider value={ingredients}>{children}</IngredientContext.Provider>;
+  // ! У тебя есть isLoading, передаём его в провайдер контекста
+  return <IngredientContext.Provider value={{ingredients, isLoading}}>{children}</IngredientContext.Provider>;
 };
