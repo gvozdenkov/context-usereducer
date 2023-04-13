@@ -1,9 +1,13 @@
 import React from 'react';
 import { useIngredientContext } from '../contexts/IngredientContext';
+import { Loading } from './Loading';
 
 export const List = () => {
-  const ingredients = useIngredientContext();
-  const filtered = ingredients.filter(ingredient => ingredient.type === 'sauce');
+  const { ingredients, isLoading } = useIngredientContext();
+
+  if (isLoading) return <Loading />;
+
+  const filtered = ingredients.filter((ingredient) => ingredient.type === 'sauce');
 
   return (
     <ul>
